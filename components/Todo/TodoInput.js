@@ -17,11 +17,7 @@ const ADD_TODO = gql`
 `;
 
 const TodoInput = ({ isPublic = false }) => {
-  let input;
   const [todoInput, setTodoInput] = useState("");
-  const resetInput = () => {
-    setTodoInput("");
-  };
   const updateCache = (cache, { data }) => {
     // If this is for the public feed, do nothing
     if (isPublic) {
@@ -38,30 +34,27 @@ const TodoInput = ({ isPublic = false }) => {
       data: { todos: [newTodo, ...existingTodos.todos] },
     });
   };
+  const resetInput = () => {
+    setTodoInput("");
+  };
   const [addTodo] = useMutation(ADD_TODO, {
     update: updateCache,
     onCompleted: resetInput,
   });
-  const todoInputOnChange = (e) => {
-    e.preventDefault();
-    setTodoInput(e.target.value);
-  };
   return (
     <form
       className="formInput"
       onSubmit={(e) => {
-        console.log(target.e.value);
+        console.log(todoInput);
         e.preventDefault();
-        if (e.target.value && e.target.value.trim() != "")
-          addTodo({ variables: { todo: todoInput, isPublic } });
+        addTodo({ variables: { todo: todoInput, isPublic } });
       }}
     >
       <input
         className="input"
         placeholder="What needs to be done?"
         value={todoInput}
-        onChange={todoInputOnChange}
-        ref={(n) => (input = n)}
+        onChange={(e) => setTodoInput(e.target.value)}
       />
       <i className="inputMarker fa fa-angle-right" />
     </form>
