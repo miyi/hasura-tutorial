@@ -27,8 +27,10 @@ const TodoInput = ({ isPublic = false }) => {
     const existingTodos = cache.readQuery({
       query: GET_MY_TODOS,
     });
+    console.log('existing todos: ', existingTodos)
     // Add the new todo to the cache
     const newTodo = data.insert_todos.returning[0];
+    console.log("data, :", data)
     cache.writeQuery({
       query: GET_MY_TODOS,
       data: { todos: [newTodo, ...existingTodos.todos] },
@@ -61,7 +63,6 @@ const TodoInput = ({ isPublic = false }) => {
     <form
       className="formInput"
       onSubmit={(e) => {
-        console.log(todoInput);
         e.preventDefault();
         addTodo({ variables: { todo: todoInput, isPublic } });
       }}
