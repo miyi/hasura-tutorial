@@ -38,6 +38,22 @@ const TodoInput = ({ isPublic = false }) => {
     setTodoInput("");
   };
   const [addTodo] = useMutation(ADD_TODO, {
+    optimisticResponse: {
+      __typename: "mutation_root",
+      insert_todos: {
+        __typename: "todos_mutation_response",
+        affected_rows: 1,
+        returning: [
+          {
+            __typename: "todos",
+            id: "temp-id",
+            title: todoInput,
+            created_at: Date.now(),
+            is_completed: false,
+          },
+        ],
+      },
+    },
     update: updateCache,
     onCompleted: resetInput,
   });

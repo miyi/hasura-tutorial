@@ -7,6 +7,9 @@ const TodoItem = ({ index, todo }) => {
     mutation removeTodo($id: Int!) {
       delete_todos(where: { id: { _eq: $id } }) {
         affected_rows
+        returning {
+          id
+        }
       }
     }
   `;
@@ -18,30 +21,50 @@ const TodoItem = ({ index, todo }) => {
         _set: { is_completed: $isCompleted }
       ) {
         affected_rows
+        returning {
+          id
+          title
+          is_completed
+        }
       }
     }
   `;
 
   const [toggleTodoMutation] = useMutation(TOGGLE_TODO);
-  const [removeTodoMutation] = useMutation(REMOVE_TODO);
+  const [removeTodoMutation] = useMutation(REMOVE_TODO, {
+    update(cache, { data }) {
+      const existingTodos = cache.readQuery({ query: GET_MY_TODOS });
+      const newTodos = existingTodos.todos.map((t) => {
+        if (t.id === todo.id) {
+          return { ...t, ...data.update_todos.returning[0] };
+        } else {
+          return t;
+        }
+      });
+      cache.writeQuery({
+        query: GET_MY_TODOS,
+        data: { todos: newTodos },
+      });
+    },
+  });
 
   const toggleTodo = () => {
     toggleTodoMutation({
       variables: { id: todo.id, isCompleted: !todo.is_completed },
-      optimisticResponse: true,
-      update: (cache) => {
-        const existingTodos = cache.readQuery({ query: GET_MY_TODOS });
-        const newTodos = existingTodos.todos.map((t) => {
-          if (t.id === todo.id) {
-            return { ...t, is_completed: !t.is_completed };
-          } else {
-            return t;
-          }
-        });
-        cache.writeQuery({
-          query: GET_MY_TODOS,
-          data: { todos: newTodos },
-        });
+      optimisticResponse: {
+        __typename: "mutation_root",
+        update_todos: {
+          __typename: "todos_mutation_response",
+          affected_rows: 1,
+          returning: [
+            {
+              __typename: "todos",
+              id: todo.id,
+              title: todo.title,
+              is_completed: !todo.is_completed,
+            },
+          ],
+        },
       },
     });
   };
@@ -51,10 +74,23 @@ const TodoItem = ({ index, todo }) => {
     e.stopPropagation();
     removeTodoMutation({
       variables: { id: todo.id },
-      optimisticResponse: true,
+      optimisticResponse: {
+        __typename: "mutation_root",
+        delete_todos: {
+          __typename: "todos_mutation_response",
+          affected_rows: 1,
+          returning: [
+            {
+              __typename: "todos",
+              id: todo.id,
+            },
+          ],
+        },
+      },
       update: (cache) => {
         const existingTodos = cache.readQuery({ query: GET_MY_TODOS });
         const newTodos = existingTodos.todos.filter((t) => t.id !== todo.id);
+        console.log(newTodos);
         cache.writeQuery({
           query: GET_MY_TODOS,
           data: { todos: newTodos },
