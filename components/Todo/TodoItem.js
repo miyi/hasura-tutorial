@@ -7,9 +7,6 @@ const TodoItem = ({ index, todo }) => {
     mutation removeTodo($id: Int!) {
       delete_todos(where: { id: { _eq: $id } }) {
         affected_rows
-        returning {
-          id
-        }
       }
     }
   `;
@@ -79,12 +76,6 @@ const TodoItem = ({ index, todo }) => {
         delete_todos: {
           __typename: "todos_mutation_response",
           affected_rows: 1,
-          returning: [
-            {
-              __typename: "todos",
-              id: todo.id,
-            },
-          ],
         },
       },
       update: (cache) => {

@@ -27,10 +27,8 @@ const TodoInput = ({ isPublic = false }) => {
     const existingTodos = cache.readQuery({
       query: GET_MY_TODOS,
     });
-    console.log('existing todos: ', existingTodos)
     // Add the new todo to the cache
     const newTodo = data.insert_todos.returning[0];
-    console.log("data, :", data)
     cache.writeQuery({
       query: GET_MY_TODOS,
       data: { todos: [newTodo, ...existingTodos.todos] },
@@ -50,7 +48,7 @@ const TodoInput = ({ isPublic = false }) => {
             __typename: "todos",
             id: "temp-id",
             title: todoInput,
-            created_at: Date.now(),
+            created_at: new Date().toISOString(),
             is_completed: false,
           },
         ],
