@@ -8,7 +8,7 @@ const TodoPublicWrapper = () => {
     <div className="todoWrapper">
       <div className="sectionHeader">Public feed (realtime)</div>
 
-      <TodoInput isPublic />
+      <TodoInput isPublic={true} />
       <TodoPublicList />
     </div>
   );

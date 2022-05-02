@@ -66,7 +66,7 @@ const TodoPublicList = ({ latestTodo }) => {
       setState((prevState) => {
         return { ...prevState, newTodosCount: prevState.newTodosCount + 1 };
       });
-      newestTodoId = atestTodo.id;
+      newestTodoId = latestTodo.id;
     }
   }, [latestTodo]);
   const loadNew = async () => {
@@ -192,7 +192,7 @@ const TodoPublicList = ({ latestTodo }) => {
 const NOTIFY_NEW_PUBLIC_TODOS = gql`
   subscription notifyNewPublicTodos {
     todos(
-      where: { isPublic: { _eq: true } }
+      where: { is_public: { _eq: true } }
       limit: 1
       order_by: { created_at: desc }
     ) {
@@ -211,4 +211,4 @@ const todoPublicListSubscription = () => {
   );
 };
 
-export default TodoPublicList;
+export default todoPublicListSubscription;
